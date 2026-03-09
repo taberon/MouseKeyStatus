@@ -1,0 +1,43 @@
+name: Build and Upload WinForms App
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  # Allows manual triggering from the GitHub Actions tab
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest # .NET Framework requires a Windows environment
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+
+    - name: Setup MSBuild
+      uses: microsoft/setup-msbuild@v1.1
+
+    # Not yet using any NuGet packages
+    #- name: Setup NuGet
+    #  uses: NuGet/setup-nuget@v1.0.5
+
+    # Not yet using any NuGet packages
+    #- name: Restore NuGet Packages
+    #  run: nuget restore MouseKeyStatus.sln
+
+    - name: Build Solution
+      run: msbuild MouseKeyStatus.sln /p:Configuration=Release /p:Platform="Any CPU" /verbosity:minimal
+      # This command builds the project in Release mode, generating the EXE in the output directory (e.g., bin/Release)
+
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v4 # Action to upload build artifacts
+      with:
+        name: WinForms-App-Executable # The name of the artifact
+        path: |
+          bin/Release/MouseKeyStatus.exe
+          # Replace 'YourProjectName' and 'YourExecutable.exe' with your actual project/file names
+          #YourProjectName/bin/Release/YourExecutable.exe
+          #YourProjectName/bin/Release/*.dll
+          # Include any other necessary files (e.g., config files, other DLLs)
